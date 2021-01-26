@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { Fragment, useState } from 'react';
 import { RenderUtil } from 'yuso-util';
 import * as yusoWebs from 'yuso-web';
 import * as antds from 'antd';
@@ -10,21 +10,19 @@ const components = {
     ...antds,
     ...yusoWebs
 }
-const Engine = (data) => {
-    const [schema, setSchema] = useState(null);
 
-    useEffect(() => {
-        setSchema(RenderUtil.recurrenceSchema({...data.schema, reload: (s) => { setSchema({...s}) }}))
-    }, [data])
+export default props => {
+    let { prefixCls = 'yuso-web' } = props;
+    const [schema, setSchema] = useState(RenderUtil.recurrenceSchema({
+        ...props.schema,
+        reload: (s) => { setSchema({ ...s }) }
+    }));
 
     if (!schema) return null;
-    return <div className={data.prefixCls}>
-        {RenderUtil.recurrenceRender(components, schema)}
+    console.time('render');
+    const Children = RenderUtil.recurrenceRender(components, schema);
+    console.timeEnd("render");
+    return <div className={prefixCls}>
+        {Children}
     </div>
 }
-
-Engine.defaultProps = {
-    prefixCls: 'yuso-engine'
-}
-
-export default Engine;
